@@ -3,7 +3,6 @@ package com.example.simplebudgettracker
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -101,11 +100,6 @@ fun MainMenu(navController: NavHostController) {
             Text("Report")
         }
     }
-}
-
-
-fun detectTapGestures(onPress: Any, onRelease: Any) {
-
 }
 
 @Composable
