@@ -50,6 +50,20 @@ class BudgetViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun calculateDailySpending(): Double {
+        val calendar = Calendar.getInstance()
+        val currentDay = calendar.get(Calendar.DAY_OF_YEAR)
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        return transactions.filter {
+            val transactionDate = Calendar.getInstance()
+            transactionDate.timeInMillis = it.timestamp
+            val transactionDay = transactionDate.get(Calendar.DAY_OF_YEAR)
+            val transactionYear = transactionDate.get(Calendar.YEAR)
+            transactionDay == currentDay && transactionYear == currentYear
+        }.sumOf { it.amount }
+    }
+
     fun calculateWeeklySpending(): Double {
         val calendar = Calendar.getInstance()
         val currentWeek = calendar.get(Calendar.WEEK_OF_YEAR)

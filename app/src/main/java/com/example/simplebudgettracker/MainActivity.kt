@@ -41,6 +41,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -84,24 +85,24 @@ fun MainMenu(navController: NavHostController) {
                 )
             )
     ) {
+        // Tambahkan Gambar di Bagian Paling Atas
+        Image(
+            painter = painterResource(id = R.drawable.header), // Ganti dengan ID gambar yang sesuai
+            contentDescription = null,
+            contentScale = ContentScale.Fit, // Memastikan gambar menutupi seluruh lebar
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp) // Tinggi gambar (bisa disesuaikan)
+                .align(Alignment.TopCenter) // Memastikan gambar berada di atas
+        )
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Top, // Memastikan elemen berada di atas
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Tambahkan Gambar di Bagian Paling Atas
-            Image(
-                painter = painterResource(id = R.drawable.header), // Ganti dengan ID gambar yang sesuai
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .padding(bottom = 16.dp)
-
-
-            )
+            Spacer(modifier = Modifier.height(200.dp)) // Memberi ruang di atas untuk gambar
 
             Text(
                 text = "Apa yang ingin Anda lakukan?",
@@ -187,10 +188,11 @@ fun BudgetTrackerApp(viewModel: BudgetViewModel = viewModel()) {
 }
 @Composable
 fun ReportScreen(viewModel: BudgetViewModel) {
+    val dailySpending = viewModel.calculateDailySpending()
     val weeklySpending = viewModel.calculateWeeklySpending()
     val monthlySpending = viewModel.calculateMonthlySpending()
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -198,16 +200,42 @@ fun ReportScreen(viewModel: BudgetViewModel) {
                     colors = listOf(Color(0xFFBBDEFB), Color(0xFF64B5F6), Color(0xFF1976D2))
                 )
             )
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("Weekly Report", style = MaterialTheme.typography.headlineLarge)
-            Text("Total Weekly Spending: ${formatCurrency(weeklySpending)}")
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Monthly Report", style = MaterialTheme.typography.headlineLarge)
-            Text("Total Monthly Spending: ${formatCurrency(monthlySpending)}")
-        }
+        Text(
+            "Daily Report",
+            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+            color = Color.White
+        )
+        Text(
+            "Total Daily Spending: ${formatCurrency(dailySpending)}",
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            "Weekly Report",
+            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+            color = Color.White
+        )
+        Text(
+            "Total Weekly Spending: ${formatCurrency(weeklySpending)}",
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            "Monthly Report",
+            style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+            color = Color.White
+        )
+        Text(
+            "Total Monthly Spending: ${formatCurrency(monthlySpending)}",
+            color = Color.White
+        )
     }
 }
+
 
 @Composable
 fun TransactionList(transactions: List<Transaction>, onDelete: (Transaction) -> Unit) {
