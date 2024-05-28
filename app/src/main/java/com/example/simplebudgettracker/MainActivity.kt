@@ -3,6 +3,8 @@ package com.example.simplebudgettracker
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -34,8 +36,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,94 +75,140 @@ fun MainScreen() {
 fun MainMenu(navController: NavHostController) {
     val interactionSource = remember { MutableInteractionSource() }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFFBBDEFB), Color(0xFF64B5F6), Color(0xFF1976D2))
+                )
+            )
     ) {
-        Button(
-            onClick = { navController.navigate("budget_tracker") },
+        Column(
             modifier = Modifier
-                .width(IntrinsicSize.Max)
-                .padding(8.dp)
-                .clickable(interactionSource = interactionSource,
-                    indication = rememberRipple(),
-                    onClick = { navController.navigate("budget_tracker") }
-                )
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Top, // Memastikan elemen berada di atas
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Budget Tracker")
-        }
+            // Tambahkan Gambar di Bagian Paling Atas
+            Image(
+                painter = painterResource(id = R.drawable.header), // Ganti dengan ID gambar yang sesuai
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .padding(bottom = 16.dp)
 
-        Button(
-            onClick = { navController.navigate("report") },
-            modifier = Modifier
-                .width(IntrinsicSize.Max)
-                .padding(8.dp)
-                .clickable(interactionSource = interactionSource,
-                    indication = rememberRipple(),
-                    onClick = { navController.navigate("report") }
-                )
-        ) {
-            Text("Report")
+
+            )
+
+            Text(
+                text = "Apa yang ingin Anda lakukan?",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF00796B),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            MenuButton(
+                text = "Budget Tracker",
+                icon = painterResource(id = R.drawable.icondata), // Ganti dengan ikon yang sesuai
+                onClick = { navController.navigate("budget_tracker") }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            MenuButton(
+                text = "Laporan",
+                icon = painterResource(id = R.drawable.iconlaporan4), // Ganti dengan ikon yang sesuai
+                onClick = { navController.navigate("report") }
+            )
         }
     }
 }
+
+
+
 
 @Composable
 fun BudgetTrackerApp(viewModel: BudgetViewModel = viewModel()) {
     var description by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        TextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("Description") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-        TextField(
-            value = amount,
-            onValueChange = { amount = it },
-            label = { Text("Amount") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-        Button(
-            onClick = {
-                if (description.isNotBlank() && amount.isNotBlank()) {
-                    viewModel.addTransaction(description, amount.toDouble())
-                    description = ""
-                    amount = ""
-                }
-            },
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Add")
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFFBBDEFB), Color(0xFF64B5F6), Color(0xFF1976D2))
+                )
+            )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            TextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("Description") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+            TextField(
+                value = amount,
+                onValueChange = { amount = it },
+                label = { Text("Amount") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+            Button(
+                onClick = {
+                    if (description.isNotBlank() && amount.isNotBlank()) {
+                        viewModel.addTransaction(description, amount.toDouble())
+                        description = ""
+                        amount = ""
+                    }
+                },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Add")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            TransactionList(transactions = viewModel.transactions, onDelete = { viewModel.removeTransaction(it) })
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        TransactionList(transactions = viewModel.transactions, onDelete = { viewModel.removeTransaction(it) })
     }
 }
-
 @Composable
 fun ReportScreen(viewModel: BudgetViewModel) {
     val weeklySpending = viewModel.calculateWeeklySpending()
     val monthlySpending = viewModel.calculateMonthlySpending()
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("Weekly Report", style = MaterialTheme.typography.headlineLarge)
-        Text("Total Weekly Spending: ${formatCurrency(weeklySpending)}")
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Monthly Report", style = MaterialTheme.typography.headlineLarge)
-        Text("Total Monthly Spending: ${formatCurrency(monthlySpending)}")
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color(0xFFBBDEFB), Color(0xFF64B5F6), Color(0xFF1976D2))
+                )
+            )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Weekly Report", style = MaterialTheme.typography.headlineLarge)
+            Text("Total Weekly Spending: ${formatCurrency(weeklySpending)}")
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Monthly Report", style = MaterialTheme.typography.headlineLarge)
+            Text("Total Monthly Spending: ${formatCurrency(monthlySpending)}")
+        }
     }
 }
+
 @Composable
 fun TransactionList(transactions: List<Transaction>, onDelete: (Transaction) -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
@@ -195,6 +249,42 @@ fun TransactionItem(transaction: Transaction, onDelete: (Transaction) -> Unit) {
             IconButton(onClick = { onDelete(transaction) }) {
                 Icon(Icons.Default.Delete, contentDescription = "Delete")
             }
+        }
+    }
+}
+
+@Composable
+fun MenuButton(
+    text: String,
+    icon: Painter,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Image(
+                painter = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = text,
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
